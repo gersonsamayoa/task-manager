@@ -1,5 +1,4 @@
-
-const pool = require('../config/database');
+const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -9,16 +8,41 @@ const registerUser = async (req, res) => {
         const { name, email, password } = req.body;
 
         // Validar campos obligatorios
-        if (!name || !email || !password) {
+        if (typeof name !== 'string' || !name.trim()) {
             return res.status(400).json({
-                mensaje: 'Todos los campos son obligatorios'
+                mensaje: 'El nombre debe ser un texto y no puede estar vacío'
+            });
+        }
+
+        if (typeof email !== 'string' || !email.trim() ||
+            typeof password !== 'string' || !password) {
+            return res.status(400).json({
+                mensaje: 'El correo y la contraseña son obligatorios'
+            });
+        }
+
+        // Validar formato del correo
+        const emailNormalizado = email.trim().toLowerCase();
+
+        const formatoEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!formatoEmail.test(emailNormalizado)) {
+            return res.status(400).json({
+                mensaje: 'El correo electrónico no tiene un formato válido'
+            });
+        }
+
+        // Validar longitud de la contraseña
+        if (password.length < 8) {
+            return res.status(400).json({
+                mensaje: 'La contraseña debe tener al menos 8 caracteres'
             });
         }
 
         // Verificar si el correo ya existe
         const [existingUser] = await pool.query(
             'SELECT id FROM users WHERE email = ?',
-            [email]
+            [emailNormalizado]
         );
 
         if (existingUser.length > 0) {
@@ -33,15 +57,15 @@ const registerUser = async (req, res) => {
         // Guardar usuario en MySQL
         const [result] = await pool.query(
             'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-            [name, email, hashedPassword]
+            [name.trim(), emailNormalizado, hashedPassword]
         );
 
         res.status(201).json({
             mensaje: 'Usuario registrado correctamente',
             usuario: {
                 id: result.insertId,
-                name,
-                email
+                name: name.trim(),
+                email: emailNormalizado
             }
         });
 
@@ -60,16 +84,22 @@ const loginUser = async (req, res) => {
         const { email, password } = req.body;
 
         // Validar campos obligatorios
-        if (!email || !password) {
+        if (
+            typeof email !== 'string' || !email.trim() ||
+            typeof password !== 'string' || !password
+        ) {
             return res.status(400).json({
                 mensaje: 'El correo y la contraseña son obligatorios'
             });
         }
 
+        // Normalizar correo
+        const emailNormalizado = email.trim().toLowerCase();
+
         // Buscar usuario por correo
         const [users] = await pool.query(
             'SELECT * FROM users WHERE email = ?',
-            [email]
+            [emailNormalizado]
         );
 
         // Verificar si existe el usuario

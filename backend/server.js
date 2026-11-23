@@ -1,4 +1,3 @@
-
 const express = require('express');
 
 const app = express();
@@ -9,6 +8,7 @@ app.use(express.json());
 
 // Importar rutas
 const usersRoutes = require('./routes/usersRoutes');
+const tasksRoutes = require('./routes/tasksRoutes');
 
 // Primera ruta de prueba
 app.get('/', (req, res) => {
@@ -19,6 +19,9 @@ app.get('/', (req, res) => {
 
 // Rutas de usuarios
 app.use('/api/users', usersRoutes);
+
+// Rutas de tareas
+app.use('/api/tasks', tasksRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {
