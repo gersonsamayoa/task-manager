@@ -43,6 +43,13 @@ const createTask = async (req, res) => {
             });
         }
 
+        // Validar prioridad obligatoria
+        if (!priority_id) {
+            return res.status(400).json({
+                mensaje: 'La prioridad es obligatoria'
+            });
+        }
+
         // Validar que la prioridad exista
         const [priorities] = await pool.query(
             'SELECT id FROM priorities WHERE id = ?',
@@ -87,7 +94,7 @@ const createTask = async (req, res) => {
             [
                 userId,
                 priority_id,
-                title,
+                title.trim(),
                 description || null,
                 due_date || null
             ]
@@ -112,6 +119,13 @@ const getTaskById = async (req, res) => {
     try {
         const userId = req.usuario.id;
         const taskId = req.params.id;
+
+        // Validar ID de la tarea
+        if (!Number.isInteger(Number(taskId)) || Number(taskId) <= 0) {
+            return res.status(400).json({
+                mensaje: 'El ID de la tarea no es válido'
+            });
+        }
 
         const [tasks] = await pool.query(
             `SELECT * FROM tasks
@@ -168,7 +182,7 @@ const updateTask = async (req, res) => {
         // Identificar los campos que queremos actualizar
         if (title !== undefined) {
             campos.push('title = ?');
-            valores.push(title);
+            valores.push(title.trim());
         }
 
         if (description !== undefined) {
@@ -203,6 +217,15 @@ const updateTask = async (req, res) => {
             if (typeof title !== 'string' || !title.trim()) {
                 return res.status(400).json({
                     mensaje: 'El título debe ser un texto y no puede estar vacío'
+                });
+            }
+        }
+
+        // Validar la descripción
+        if (description !== undefined && description !== null) {
+            if (typeof description !== 'string') {
+                return res.status(400).json({
+                    mensaje: 'La descripción debe ser un texto'
                 });
             }
         }
