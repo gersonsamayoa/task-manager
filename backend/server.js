@@ -1,7 +1,13 @@
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
+
+// Configuración CORS
+app.use(cors({
+    origin: 'http://localhost:4200'
+}));
 
 // Middleware para recibir datos JSON
 app.use(express.json());

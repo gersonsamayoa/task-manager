@@ -1,0 +1,116 @@
+<div class="tasks-container">
+
+    <header class="tasks-header">
+
+        <div>
+            <h1>Mis tareas</h1>
+            <p>Organiza y da seguimiento a tus actividades.</p>
+        </div>
+
+        <div class="header-actions">
+
+            <button type="button" class="new-task-button">
+                + Nueva tarea
+            </button>
+
+            <div class="user-menu-container">
+
+                <button type="button" class="user-menu-trigger" (click)="toggleUserMenu()">
+
+                    <span class="user-avatar">
+                        {{ user?.name?.charAt(0)?.toUpperCase() || 'U' }}
+                    </span>
+
+                    <span class="user-info">
+                        <strong>{{ user?.name || 'Mi cuenta' }}</strong>
+                        <small>Mi cuenta</small>
+                    </span>
+
+                    <span class="user-arrow">▾</span>
+
+                </button>
+
+                @if (isUserMenuOpen()) {
+
+                <div class="user-dropdown">
+
+                    <button type="button" class="dropdown-item">
+                        <span>👤</span>
+                        Mi perfil
+                    </button>
+
+                    <button type="button" class="dropdown-item logout-item" (click)="logout()">
+
+                        <span>↪</span>
+                        Cerrar sesión
+
+                    </button>
+
+                </div>
+
+                }
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <section class="tasks-content">
+
+        @if (isLoading()) {
+        <p>Cargando tareas...</p>
+        }
+
+        @if (errorMessage()) {
+        <p class="error-message">{{ errorMessage() }}</p>
+        }
+
+        @if (!isLoading() && !errorMessage()) {
+
+        @if (tasks().length > 0) {
+
+        <div class="tasks-grid">
+
+            @for (task of tasks(); track task.id) {
+
+            <article class="task-card">
+
+                <div class="task-card-header">
+                    <span class="task-status" [class.completed]="task.status === 'completed'">
+                        {{ task.status === 'completed' ? 'Completada' : 'Pendiente' }}
+                    </span>
+
+                    <span class="task-priority">
+                        Prioridad {{ task.priority_id }}
+                    </span>
+                </div>
+
+                <h3>{{ task.title }}</h3>
+
+                <p class="task-description">
+                    {{ task.description || 'Sin descripción' }}
+                </p>
+
+                <div class="task-footer">
+                    <span>Vencimiento:</span>
+                    <strong>
+                        {{ task.due_date ? (task.due_date | date:'dd/MM/yyyy') : 'Sin fecha' }}
+                    </strong>
+                </div>
+
+            </article>
+
+            }
+
+        </div>
+
+        } @else {
+        <p>No tienes tareas registradas.</p>
+        }
+
+        }
+
+    </section>
+
+</div>

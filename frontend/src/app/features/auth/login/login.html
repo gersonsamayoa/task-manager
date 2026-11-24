@@ -1,0 +1,76 @@
+<div class="login-container">
+
+    <h2>Iniciar sesión</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        @if (errorMessage) {
+        <div class="error-message">
+            {{ errorMessage }}
+        </div>
+        }
+
+        @if (successMessage) {
+        <div class="success-message">
+            {{ successMessage }}
+        </div>
+        }
+
+        <div>
+            <label>Correo electrónico</label>
+
+            <input type="email" formControlName="email" placeholder="Ingrese su correo">
+
+            @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
+            <small>El correo electrónico es obligatorio.</small>
+            }
+
+            @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('email')) {
+            <small>Ingrese un correo electrónico válido.</small>
+            }
+        </div>
+
+        <div>
+    <label>Contraseña</label>
+
+    <div class="password-container">
+
+        <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Ingrese su contraseña">
+
+        <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+
+            @if (showPassword) {
+                👁️‍🗨️
+            } @else {
+                👁️‍🗨️
+            }
+
+        </button>
+
+    </div>
+
+    @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
+        <small>La contraseña es obligatoria.</small>
+    }
+</div>
+
+        <button type="submit" [disabled]="isLoading">
+
+            @if (isLoading) {
+            Iniciando sesión...
+            } @else {
+            Iniciar sesión
+            }
+
+        </button>
+
+    </form>
+
+</div>
