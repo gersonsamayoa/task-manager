@@ -6,7 +6,7 @@ const getTasks = async (req, res) => {
         const userId = req.usuario.id;
 
         const [tasks] = await pool.query(
-            'SELECT * FROM tasks WHERE user_id = ? AND deleted_at IS NULL',
+            'SELECT * FROM tasks WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC',
             [userId]
         );
 
@@ -20,6 +20,32 @@ const getTasks = async (req, res) => {
 
         res.status(500).json({
             mensaje: 'Error al obtener las tareas'
+        });
+    }
+};
+
+// Obtener tareas eliminadas del usuario autenticado
+const getDeletedTasks = async (req, res) => {
+    try {
+        const userId = req.usuario.id;
+
+        const [tasks] = await pool.query(
+            `SELECT * FROM tasks
+             WHERE user_id = ? AND deleted_at IS NOT NULL
+             ORDER BY deleted_at DESC`,
+            [userId]
+        );
+
+        res.json({
+            mensaje: 'Tareas eliminadas obtenidas correctamente',
+            tareas: tasks
+        });
+
+    } catch (error) {
+        console.error('Error al obtener tareas eliminadas:', error);
+
+        res.status(500).json({
+            mensaje: 'Error al obtener las tareas eliminadas'
         });
     }
 };
@@ -390,6 +416,7 @@ module.exports = {
     createTask,
     getTaskById,
     getTasks,
+    getDeletedTasks,
     updateTask,
     deleteTask,
     restoreTask

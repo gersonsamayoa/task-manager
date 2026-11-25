@@ -15,6 +15,7 @@ app.use(express.json());
 // Importar rutas
 const usersRoutes = require('./routes/usersRoutes');
 const tasksRoutes = require('./routes/tasksRoutes');
+const prioritiesRoutes = require('./routes/prioritiesRoutes');
 
 // Primera ruta de prueba
 app.get('/', (req, res) => {
@@ -28,6 +29,9 @@ app.use('/api/users', usersRoutes);
 
 // Rutas de tareas
 app.use('/api/tasks', tasksRoutes);
+
+//Rutas de prioridades
+app.use('/api/priorities', prioritiesRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

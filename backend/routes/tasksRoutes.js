@@ -6,6 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const { 
     getTasks,
+    getDeletedTasks,
     createTask,
     getTaskById,
     updateTask,
@@ -15,6 +16,7 @@ const {
 
 // Aquí agregaremos las rutas protegidas de tareas
 router.get('/', authMiddleware, getTasks);
+router.get('/deleted', authMiddleware, getDeletedTasks);
 router.post('/', authMiddleware, createTask);
 router.get('/:id', authMiddleware, getTaskById);
 router.patch('/:id', authMiddleware, updateTask);

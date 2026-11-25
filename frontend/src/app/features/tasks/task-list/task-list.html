@@ -3,15 +3,32 @@
     <header class="tasks-header">
 
         <div>
+            @if (!showTrash()) {
             <h1>Mis tareas</h1>
             <p>Organiza y da seguimiento a tus actividades.</p>
+            } @else {
+            <h1>Papelera</h1>
+            <p>Administra y recupera tus tareas eliminadas.</p>
+            }
         </div>
 
         <div class="header-actions">
 
-            <button type="button" class="new-task-button">
+            @if (!showTrash()) {
+            <button type="button" class="new-task-button" (click)="openCreateModal()">
                 + Nueva tarea
             </button>
+            }
+
+            @if (!showTrash()) {
+            <button type="button" class="trash-button" (click)="showTrashSection()">
+                🗑️ Papelera
+            </button>
+            } @else {
+            <button type="button" class="trash-button" (click)="showTasks()">
+                ← Volver a mis tareas
+            </button>
+            }
 
             <div class="user-menu-container">
 
@@ -68,6 +85,8 @@
 
         @if (!isLoading() && !errorMessage()) {
 
+        @if (!showTrash()) {
+
         @if (tasks().length > 0) {
 
         <div class="tasks-grid">
@@ -77,13 +96,26 @@
             <article class="task-card">
 
                 <div class="task-card-header">
-                    <span class="task-status" [class.completed]="task.status === 'completed'">
-                        {{ task.status === 'completed' ? 'Completada' : 'Pendiente' }}
+
+                    <span class="task-status" [class.completed]="task.status === 'completed'"
+                        [class.in-progress]="task.status === 'in_progress'">
+
+                        {{
+                        task.status === 'completed' ? 'Finalizada' :
+                        task.status === 'in_progress' ? 'En progreso' :
+                        'Pendiente'
+                        }}
+
                     </span>
 
-                    <span class="task-priority">
-                        Prioridad {{ task.priority_id }}
+                    <span class="task-priority" [class.priority-low]="task.priority_id === 1"
+                        [class.priority-medium]="task.priority_id === 2" [class.priority-high]="task.priority_id === 3">
+
+                        {{ task.priority_id === 1 ? '↓' : task.priority_id === 2 ? '→' : '↑' }}
+                        {{ priorities().find(p => p.id === task.priority_id)?.name || 'Sin prioridad' }}
+
                     </span>
+
                 </div>
 
                 <h3>{{ task.title }}</h3>
@@ -93,13 +125,28 @@
                 </p>
 
                 <div class="task-footer">
+                    <span>Creación:</span>
+                    <strong>{{ task.created_at | date:'dd/MM/yyyy' }}</strong>
+
                     <span>Vencimiento:</span>
                     <strong>
                         {{ task.due_date ? (task.due_date | date:'dd/MM/yyyy') : 'Sin fecha' }}
                     </strong>
                 </div>
 
+                <div class="task-actions">
+                    <button type="button" class="edit-button" (click)="editTask(task)">
+                        ✏️ Editar
+                    </button>
+
+                    <button type="button" class="delete-button" (click)="openDeleteModal(task)">
+                        🗑️ Eliminar
+                    </button>
+                </div>
+
             </article>
+
+
 
             }
 
@@ -109,8 +156,141 @@
         <p>No tienes tareas registradas.</p>
         }
 
+        } @else {
+
+        <h2>Papelera</h2>
+
+        @if (deletedTasks().length > 0) {
+        <p>Hay {{ deletedTasks().length }} tareas eliminadas.</p>
+
+        <div class="tasks-grid">
+            @for (task of deletedTasks(); track task.id) {
+            <article class="task-card">
+                <h3>{{ task.title }}</h3>
+
+                <p class="task-description">
+                    {{ task.description || 'Sin descripción' }}
+                </p>
+
+                <div class="task-footer">
+                    <span>Creación:</span>
+                    <strong>{{ task.created_at | date:'dd/MM/yyyy' }}</strong>
+                </div>
+
+                <div class="task-actions">
+                    <button type="button" class="restore-button" (click)="restoreTask(task.id)">
+                        ↩️ Restaurar
+                    </button>
+                </div>
+
+            </article>
+            }
+        </div>
+        } @else {
+        <p>La papelera está vacía.</p>
+        }
+
+        }
+
         }
 
     </section>
+
+    @if (editingTask() || isCreating()) {
+
+    <div class="modal-overlay" [class.closing]="isClosing()">
+
+        <div class="edit-modal">
+
+            <div class="modal-header">
+                <div>
+                    <h2>{{ isCreating() ? 'Nueva tarea' : 'Editar tarea' }}</h2>
+                    <p>Actualiza la información de tu actividad.</p>
+                </div>
+
+                <button type="button" class="modal-close" (click)="closeEditModal()">
+                    ×
+                </button>
+            </div>
+
+            <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveTask()">
+
+                <label>Título</label>
+                <input type="text" formControlName="title">
+
+                <label>Descripción</label>
+                <textarea formControlName="description"></textarea>
+
+                <label>Prioridad</label>
+                <select formControlName="priority_id">
+                    @for (priority of priorities(); track priority.id) {
+                    <option [ngValue]="priority.id">
+                        {{ priority.name }}
+                    </option>
+                    }
+                </select>
+
+                <label>Estado</label>
+                <select formControlName="status">
+                    <option value="pending">Pendiente</option>
+                    <option value="in_progress">En progreso</option>
+                    <option value="completed">Finalizada</option>
+                </select>
+
+                <label>Fecha de vencimiento</label>
+                <input type="date" formControlName="due_date">
+
+                <div class="edit-form-buttons">
+                    <button type="button" class="cancel-button" (click)="closeEditModal()">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="save-button">
+                        {{ isCreating() ? 'Crear tarea' : 'Guardar cambios' }}
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    }
+
+    @if (taskToDelete()) {
+    <div class="modal-overlay" [class.closing]="isDeleteClosing()">
+        <div class="edit-modal delete-modal">
+
+            <div class="modal-header">
+                <div>
+                    <h2>¿Eliminar tarea?</h2>
+                    <p>Esta acción quitará la tarea de tu lista.</p>
+                </div>
+                <button type="button" class="modal-close" (click)="closeDeleteModal()">
+                    ×
+                </button>
+            </div>
+
+            <div class="delete-modal-content">
+                <p>
+                    ¿Estás seguro de que deseas eliminar
+                    <strong>{{ taskToDelete()?.title }}</strong>?
+                </p>
+            </div>
+
+            <div class="edit-form-buttons">
+                <button type="button" class="cancel-button" (click)="closeDeleteModal()">
+                    Cancelar
+                </button>
+
+                <button type="button" class="confirm-delete-button" (click)="confirmDelete()">
+                    Sí, eliminar
+                </button>
+            </div>
+
+        </div>
+    </div>
+    }
 
 </div>
