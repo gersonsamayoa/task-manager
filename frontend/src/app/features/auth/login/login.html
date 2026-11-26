@@ -31,35 +31,33 @@
         </div>
 
         <div>
-    <label>Contraseña</label>
+            <label>Contraseña</label>
 
-    <div class="password-container">
+            <div class="password-container">
 
-        <input
-            [type]="showPassword ? 'text' : 'password'"
-            formControlName="password"
-            placeholder="Ingrese su contraseña">
+                <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                    placeholder="Ingrese su contraseña">
 
-        <button
-            type="button"
-            class="toggle-password"
-            (click)="togglePasswordVisibility()"
-            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <button type="button" class="toggle-password" (mousedown)="showPassword = true"
+                    (mouseup)="showPassword = false" (mouseleave)="showPassword = false"
+                    (touchstart)="showPassword = true" (touchend)="showPassword = false"
+                    (touchcancel)="showPassword = false"
+                    [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
 
-            @if (showPassword) {
-                👁️‍🗨️
-            } @else {
-                👁️‍🗨️
+                    @if (showPassword) {
+                    👁️‍🗨️
+                    } @else {
+                    👁️‍🗨️
+                    }
+
+                </button>
+
+            </div>
+
+            @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
+            <small>La contraseña es obligatoria.</small>
             }
-
-        </button>
-
-    </div>
-
-    @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
-        <small>La contraseña es obligatoria.</small>
-    }
-</div>
+        </div>
 
         <button type="submit" [disabled]="isLoading">
 

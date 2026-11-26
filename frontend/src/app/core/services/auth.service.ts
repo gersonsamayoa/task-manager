@@ -44,18 +44,50 @@ export class AuthService {
 
   }
 
+  // Obtener perfil del usuario autenticado
+  getProfile(): Observable<{ mensaje: string; usuario: User }> {
+    return this.http.get<{ mensaje: string; usuario: User }>(
+      `${this.apiUrl}/profile`
+    );
+  }
+
+  // Actualizar perfil del usuario autenticado
+  updateProfile(data: { name: string; email: string }): Observable<{ mensaje: string; usuario: User }> {
+    return this.http.patch<{ mensaje: string; usuario: User }>(
+      `${this.apiUrl}/profile`,
+      data
+    ).pipe(
+      tap(response => {
+        localStorage.setItem(
+          'task_manager_user',
+          JSON.stringify(response.usuario)
+        );
+      })
+    );
+  }
+
+  // Cambiar contraseña del usuario autenticado
+  changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<{ mensaje: string }> {
+    return this.http.patch<{ mensaje: string }>(
+      `${this.apiUrl}/change-password`,
+      data
+    );
+  }
 
   //Cerrar sesión
   logout(): void {
-  this.tokenService.removeToken();
-  localStorage.removeItem('task_manager_user');
-}
+    this.tokenService.removeToken();
+    localStorage.removeItem('task_manager_user');
+  }
 
   //Verificar si el usuario está autenticado
   getUser(): User | null {
-  const user = localStorage.getItem('task_manager_user');
+    const user = localStorage.getItem('task_manager_user');
 
-  return user ? JSON.parse(user) as User : null;
-}
+    return user ? JSON.parse(user) as User : null;
+  }
 
 }

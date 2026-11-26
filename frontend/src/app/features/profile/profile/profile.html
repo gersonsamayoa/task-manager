@@ -26,7 +26,17 @@
 
     <section class="profile-details">
 
-        <h3>Información de la cuenta</h3>
+        <div class="section-header">
+            <h3>Información de la cuenta</h3>
+
+            @if (!editingProfile()) {
+            <button type="button" class="edit-button" (click)="openEditProfile()">
+                ✏️ Editar perfil
+            </button>
+            }
+        </div>
+
+        @if (!editingProfile()) {
 
         <div class="profile-field">
             <label>Nombre completo</label>
@@ -42,6 +52,130 @@
             <label>ID de usuario</label>
             <p>#{{ user?.id }}</p>
         </div>
+
+        } @else {
+
+        <div class="profile-field">
+            <label>Nombre completo</label>
+            <input type="text" [value]="profileForm().name"
+                (input)="updateProfileField('name', $any($event.target).value)">
+        </div>
+
+        <div class="profile-field">
+            <label>Correo electrónico</label>
+            <input type="email" [value]="profileForm().email"
+                (input)="updateProfileField('email', $any($event.target).value)">
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="save-button" (click)="saveProfile()">
+                Guardar cambios
+            </button>
+
+            <button type="button" class="cancel-button" (click)="cancelEditProfile()">
+                Cancelar
+            </button>
+        </div>
+
+        }
+
+        @if (profileMessage()) {
+        <p class="success-message">{{ profileMessage() }}</p>
+        }
+
+        @if (profileError()) {
+        <p class="error-message">{{ profileError() }}</p>
+        }
+
+    </section>
+
+    <section class="profile-details password-section">
+
+        <div class="section-header">
+            <h3>Seguridad</h3>
+
+            @if (!changingPassword()) {
+            <button type="button" class="edit-button" (click)="openChangePassword()">
+                🔒 Cambiar contraseña
+            </button>
+            }
+        </div>
+
+        @if (changingPassword()) {
+
+        <div class="profile-field">
+            <label>Contraseña actual</label>
+            <div class="password-input-container">
+                <input [type]="passwordVisibility().currentPassword ? 'text' : 'password'"
+                    [value]="passwordForm().currentPassword"
+                    (input)="updatePasswordField('currentPassword', $any($event.target).value)">
+
+                <button type="button" class="password-eye"
+                    (mousedown)="togglePasswordVisibility('currentPassword', true)"
+                    (mouseup)="togglePasswordVisibility('currentPassword', false)"
+                    (mouseleave)="togglePasswordVisibility('currentPassword', false)"
+                    (touchstart)="togglePasswordVisibility('currentPassword', true)"
+                    (touchend)="togglePasswordVisibility('currentPassword', false)">
+                    👁️‍🗨️
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-field">
+            <label>Nueva contraseña</label>
+            <div class="password-input-container">
+                <input [type]="passwordVisibility().newPassword ? 'text' : 'password'"
+                    [value]="passwordForm().newPassword"
+                    (input)="updatePasswordField('newPassword', $any($event.target).value)">
+
+                <button type="button" class="password-eye" (mousedown)="togglePasswordVisibility('newPassword', true)"
+                    (mouseup)="togglePasswordVisibility('newPassword', false)"
+                    (mouseleave)="togglePasswordVisibility('newPassword', false)"
+                    (touchstart)="togglePasswordVisibility('newPassword', true)"
+                    (touchend)="togglePasswordVisibility('newPassword', false)">
+                    👁️‍🗨️
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-field">
+            <label>Confirmar nueva contraseña</label>
+            <div class="password-input-container">
+                <input [type]="passwordVisibility().confirmPassword ? 'text' : 'password'"
+                    [value]="passwordForm().confirmPassword"
+                    (input)="updatePasswordField('confirmPassword', $any($event.target).value)">
+
+                <button type="button" class="password-eye"
+                    (mousedown)="togglePasswordVisibility('confirmPassword', true)"
+                    (mouseup)="togglePasswordVisibility('confirmPassword', false)"
+                    (mouseleave)="togglePasswordVisibility('confirmPassword', false)"
+                    (touchstart)="togglePasswordVisibility('confirmPassword', true)"
+                    (touchend)="togglePasswordVisibility('confirmPassword', false)">
+                    👁️‍🗨️
+                </button>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="save-button" [disabled]="savingPassword()" (click)="savePassword()">
+
+                {{ savingPassword() ? 'Actualizando...' : 'Actualizar contraseña' }}
+
+            </button>
+
+            <button type="button" class="cancel-button" (click)="cancelChangePassword()">
+                Cancelar
+            </button>
+        </div>
+        }
+
+        @if (passwordMessage()) {
+        <p class="success-message">{{ passwordMessage() }}</p>
+        }
+
+        @if (passwordError()) {
+        <p class="error-message">{{ passwordError() }}</p>
+        }
 
     </section>
 

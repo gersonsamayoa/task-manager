@@ -73,8 +73,4 @@ export class Login {
 
   }
 
-  togglePasswordVisibility(): void {
-  this.showPassword = !this.showPassword;
-}
-
 }
