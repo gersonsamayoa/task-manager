@@ -1,0 +1,48 @@
+<div class="profile-container">
+
+    <header class="profile-header">
+        <div>
+            <h1>Mi perfil</h1>
+            <p>Administra tu información personal.</p>
+        </div>
+    </header>
+
+    <button type="button" class="back-button" (click)="goToTasks()">
+        ← Volver a mis tareas
+    </button>
+
+    <section class="profile-card">
+
+        <div class="profile-avatar">
+            👤
+        </div>
+
+        <div class="profile-info">
+            <h2>{{ user?.name }}</h2>
+            <p>{{ user?.email }}</p>
+        </div>
+
+    </section>
+
+    <section class="profile-details">
+
+        <h3>Información de la cuenta</h3>
+
+        <div class="profile-field">
+            <label>Nombre completo</label>
+            <p>{{ user?.name }}</p>
+        </div>
+
+        <div class="profile-field">
+            <label>Correo electrónico</label>
+            <p>{{ user?.email }}</p>
+        </div>
+
+        <div class="profile-field">
+            <label>ID de usuario</label>
+            <p>#{{ user?.id }}</p>
+        </div>
+
+    </section>
+
+</div>

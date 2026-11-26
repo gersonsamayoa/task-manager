@@ -259,4 +259,9 @@ restoreTask(id: number): void {
   });
 }
 
+openProfile() {
+  this.isUserMenuOpen.set(false);
+  this.router.navigate(['/profile']);
+}
+
 }
